@@ -1,0 +1,30 @@
+{
+  "name": "workout-app",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:api\" \"npm run dev:web\"",
+    "dev:api": "cd apps/api && npm run dev",
+    "dev:web": "cd apps/web && npm run dev"
+  },
+  "dependencies": {
+    "@asteasolutions/zod-to-openapi": "^8.5.0",
+    "@tailwindcss/vite": "^4.3.0",
+    "dotenv": "^17.4.2",
+    "pg": "^8.21.0",
+    "react-router-dom": "^7.17.0",
+    "swagger-ui-express": "^5.0.1",
+    "tailwindcss": "^4.3.0",
+    "zod": "^4.4.3",
+    "zod-openapi": "^5.4.6"
+  },
+  "devDependencies": {
+    "@types/pg": "^8.20.0",
+    "@types/swagger-ui-express": "^4.1.8",
+    "@vitejs/plugin-react": "^6.0.2",
+    "concurrently": "^10.0.3",
+    "cross-env": "^10.1.0"
+  }
+}
