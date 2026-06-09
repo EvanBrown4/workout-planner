@@ -3,7 +3,7 @@
 # ------------------------
 
 DB_CONTAINER=workout-db
-DATABASE_URL=postgres://workout_user:workout_pass@localhost:5432/workout_mvp
+DATABASE_URL=postgres://workout_user:workout_pass@localhost:5111/workout_mvp
 
 # ------------------------
 # Docker / DB
@@ -40,7 +40,7 @@ db-logs:
 	docker logs $(DB_CONTAINER)
 
 db-psql:
-	docker exec -it $(DB_CONTAINER) psql -U recipe_user -d recipe_mvp
+	docker exec -it $(DB_CONTAINER) psql -U workout_user -d workout_mvp
 
 # ------------------------
 # Migrations / Seeds
@@ -50,7 +50,7 @@ db-migrateup:
 	@echo "📦 Running migrations..."
 	for file in db/migrations/*.sql; do \
 		echo "Running $$file"; \
-		docker exec -i $(DB_CONTAINER) psql -U recipe_user -d recipe_mvp < $$file; \
+		docker exec -i $(DB_CONTAINER) psql -U workout_user -d workout_mvp < $$file; \
 	done
 	@echo "✅ Migrations complete"
 
