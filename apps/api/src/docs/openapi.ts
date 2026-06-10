@@ -1,4 +1,5 @@
 import { createDocument } from "zod-openapi";
+import {usersDocs} from "../users/users.docs.js"
 
 export const openApiDocument = createDocument({
   openapi: "3.1.0",
@@ -10,6 +11,6 @@ export const openApiDocument = createDocument({
   },
 
   paths: {
-    
+    ...usersDocs
   },
 });

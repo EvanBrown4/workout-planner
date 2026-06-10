@@ -3,6 +3,7 @@ import swaggerUi from "swagger-ui-express";
 import cors from "cors";
 import { openApiDocument } from "./docs/openapi.js";
 import { testDbConnection } from "./db/test-db.js";
+import {usersRouter} from "./users/users.routes.js";
 
 /* Verify the database is reachable before starting the server */
 await testDbConnection();
@@ -22,10 +23,10 @@ app.get("/", (req, res) => {
 });
 
 /* Mount resource routers */
-// app.use("/v1/ingredients", ingredientsRouter);
+app.use("/v1/users", usersRouter);
 
 // Start listening for incoming requests
-app.listen(3000, () => {
+app.listen(4000, () => {
   console.log("Server running on port 4000");
 });
 
