@@ -18,7 +18,7 @@ export async function getUsers(req: Request, res: Response) {
     let users;
 
     if (username) {
-      users = await usersService.querySpecificUserName(username);
+      users = await usersService.getUserByUsername(username);
     } else {
       users = await usersService.queryAllUsers();
     }
@@ -49,7 +49,7 @@ export async function getUserInformation(req: Request, res: Response) {
     if (Array.isArray(user_id)) {
       user_id = user_id[0]; 
     }
-    const users = await usersService.querySpecificUserID(user_id);
+    const users = await usersService.getUserByID(user_id);
 
     if (!users || users.length === 0) {
       return res.status(404).json({
@@ -92,7 +92,7 @@ export async function createUser(req: Request, res: Response) {
   }
 
   /* Insert the validated user into the database */
-  const user = await usersService.addUserToTable(result.data);
+  const user = await usersService.createUser(result.data);
 
   res.status(201).json({
     data: user,

@@ -1,5 +1,17 @@
 import { z } from "zod";
 
+
+export interface User {
+  id: string;
+  email: string;
+  username: string;
+  password_hash: string;
+  first_name: string;
+  last_name: string;
+  created_at: Date;
+  updated_at: Date;
+}
+
 /**
  * Schema for validating the request body when creating a new user.
  * Nutritional metadata is fully optional.
