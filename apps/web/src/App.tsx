@@ -1,7 +1,11 @@
 import React, { useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Link } from "react-router-dom";
+
 import { Home } from "./pages/HomePage";
+import { CreateWorkout } from "./pages/CreateWorkoutPage";
+import { WorkoutInfo } from "./pages/WorkoutInfoPage";
+
 import { Login } from "./pages/LoginPage";
 import { Signup } from "./pages/SignupPage";
 import { AuthProvider, useAuth } from "./context/AuthContext";
@@ -20,6 +24,8 @@ function Navbar() {
     <nav>
       <ul className="flex gap-6">
         <li><Link to="/">Home</Link></li>
+        <li><Link to="/create_workout">Create Workout</Link></li>
+        <li><Link to="/workout_info">Workout Info</Link></li>
         {user && (
           <li>
             <button onClick={logout}>Logout</button>
@@ -46,6 +52,16 @@ export default function App() {
             <Route path="/" element={
               <ProtectedRoute>
                 <Home />
+              </ProtectedRoute>
+            } />
+            <Route path="/create_workout" element={
+              <ProtectedRoute>
+                <CreateWorkout />
+              </ProtectedRoute>
+            } />
+            <Route path="/workout_info" element={
+              <ProtectedRoute>
+                <WorkoutInfo />
               </ProtectedRoute>
             } />
             <Route path="/login" element={

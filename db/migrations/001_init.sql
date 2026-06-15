@@ -41,7 +41,11 @@ CREATE TABLE training_plans (
 
     description TEXT,
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    status TEXT NOT NULL DEFAULT 'active'
+        CHECK (status IN ('active', 'completed', 'archived')),
+
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- =====================================================
@@ -51,29 +55,106 @@ CREATE TABLE training_plans (
 CREATE TABLE workouts (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
 
-    training_plan_id UUID
-        REFERENCES training_plans(id)
-        ON DELETE CASCADE,
-
     user_id UUID NOT NULL
         REFERENCES users(id)
         ON DELETE CASCADE,
 
     title TEXT NOT NULL,
 
-    workout_type TEXT NOT NULL,
+    workout_type TEXT NOT NULL
+        CHECK (workout_type IN ('running', 'cycling', 'swimming')),
 
-    scheduled_date DATE NOT NULL,
-
-    duration_minutes INTEGER,
-    distance_miles NUMERIC(6,2),
+    scheduled_date DATE,
 
     notes TEXT,
 
     status TEXT NOT NULL DEFAULT 'planned'
         CHECK (status IN ('planned', 'completed', 'skipped')),
 
-    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+-- =====================================================
+-- Workout Details — Running
+-- =====================================================
+
+CREATE TABLE workout_details_running (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    workout_id UUID NOT NULL UNIQUE
+        REFERENCES workouts(id)
+        ON DELETE CASCADE,
+
+    target_distance_meters  INTEGER,
+    target_duration_seconds INTEGER,
+    target_pace_sec_per_m   INTEGER
+);
+
+-- =====================================================
+-- Workout Details — Cycling
+-- =====================================================
+
+CREATE TABLE workout_details_cycling (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    workout_id UUID NOT NULL UNIQUE
+        REFERENCES workouts(id)
+        ON DELETE CASCADE,
+
+    target_distance_meters  INTEGER,
+    target_duration_seconds INTEGER,
+    target_pace_sec_per_m   INTEGER,
+    bike_type               TEXT CHECK (bike_type IN ('road', 'mountain', 'indoor', 'gravel'))
+);
+
+-- =====================================================
+-- Workout Details — Swimming
+-- =====================================================
+
+CREATE TABLE workout_details_swimming (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    workout_id UUID NOT NULL UNIQUE
+        REFERENCES workouts(id)
+        ON DELETE CASCADE,
+
+    target_distance_meters  INTEGER,
+    target_duration_seconds INTEGER,
+    target_pace_sec_per_m   INTEGER,
+    pool_length_meters      INTEGER CHECK (pool_length_meters IN (25, 50)),
+    stroke                  TEXT CHECK (stroke IN ('freestyle', 'backstroke', 'breaststroke', 'butterfly', 'mixed'))
+);
+
+-- =====================================================
+-- Workout Steps
+-- =====================================================
+
+CREATE TABLE workout_steps (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+
+    workout_id UUID NOT NULL
+        REFERENCES workouts(id)
+        ON DELETE CASCADE,
+
+    step_order INTEGER NOT NULL,
+
+    step_type TEXT NOT NULL
+        CHECK (step_type IN ('warmup', 'run', 'recovery', 'cooldown', 'rest', 'other')),
+
+    end_condition TEXT NOT NULL
+        CHECK (end_condition IN ('distance', 'time', 'manual')),
+
+    end_condition_value INTEGER,   -- meters if distance, seconds if time, null if manual
+
+    target_type TEXT
+        CHECK (target_type IN ('pace', 'hr', 'hr_zone')),
+
+    target_value INTEGER,
+
+    notes TEXT,
+
+    UNIQUE (workout_id, step_order)
 );
 
 -- =====================================================
@@ -91,18 +172,17 @@ CREATE TABLE workout_logs (
         REFERENCES users(id)
         ON DELETE CASCADE,
 
-    started_at TIMESTAMPTZ,
     completed_at TIMESTAMPTZ,
 
-    actual_duration_minutes INTEGER,
-    actual_distance_miles NUMERIC(6,2),
+    duration_seconds  INTEGER,
+    distance_meters   INTEGER,
+    elevation_gain_meters INTEGER,
 
-    average_hr INTEGER,
-    max_hr INTEGER,
+    avg_hr    INTEGER,
+    avg_pace_sec_per_m NUMERIC(10,6),
 
-    calories INTEGER,
-
-    notes TEXT,
+    notes  TEXT,
+    source TEXT,
 
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
@@ -232,15 +312,15 @@ CREATE TABLE fit_uploads (
         REFERENCES workout_logs(id)
         ON DELETE SET NULL,
 
-    file_name TEXT NOT NULL,
+    file_name     TEXT NOT NULL,
+    storage_path  TEXT NOT NULL,
 
-    file_size_bytes BIGINT,
+    parsed_status TEXT NOT NULL DEFAULT 'pending'
+        CHECK (parsed_status IN ('pending', 'processing', 'complete', 'failed')),
 
-    uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    parsed_metadata_json JSONB,
 
-    parsed BOOLEAN NOT NULL DEFAULT FALSE,
-
-    raw_metadata JSONB
+    uploaded_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
 -- =====================================================
@@ -253,11 +333,23 @@ ON workouts(user_id);
 CREATE INDEX idx_workouts_date
 ON workouts(scheduled_date);
 
+CREATE INDEX idx_workouts_type
+ON workouts(workout_type);
+
+CREATE INDEX idx_workout_steps_workout
+ON workout_steps(workout_id);
+
 CREATE INDEX idx_logs_user
 ON workout_logs(user_id);
+
+CREATE INDEX idx_training_plans_user
+ON training_plans(user_id);
 
 CREATE INDEX idx_events_date
 ON events(start_date);
 
 CREATE INDEX idx_fit_uploads_user
 ON fit_uploads(user_id);
+
+-- Details tables are joined by workout_id; the UNIQUE constraint
+-- creates the index automatically, so no explicit index needed.

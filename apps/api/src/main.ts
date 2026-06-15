@@ -8,6 +8,7 @@ import { testDbConnection } from "./db/test-db.js";
 import {usersRouter} from "./users/users.routes.js";
 import { authRouter } from "./auth/auth.routes.js";
 import { errorHandler } from "./middleware/errors.middleware.js";
+import { workoutsRouter } from "./workouts/workouts.routes.js";
 
 /* Verify the database is reachable before starting the server */
 await testDbConnection();
@@ -41,6 +42,7 @@ app.get("/", (req, res) => {
 /* Mount resource routers */
 app.use("/v1/users", usersRouter);
 app.use("/v1/auth", authRouter);
+app.use("/v1/workouts", workoutsRouter);
 
 
 app.use(errorHandler);
