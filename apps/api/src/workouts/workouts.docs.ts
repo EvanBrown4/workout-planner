@@ -113,31 +113,138 @@ export const workoutsDocs = {
             format: "uuid",
           },
         },
-        {
-          name: "type",
-          in: "query",
-          required: true,
-          description: "Workout type",
-          schema: {
-            type: "string",
-            enum: ["running", "cycling", "swimming"],
-            example: "running",
-          },
-        },
       ],
 
       responses: {
         200: {
           description: "Workout returned successfully",
         },
-        400: {
-          description: "Missing or invalid workout type",
-        },
         404: {
           description: "Workout not found",
         },
         500: {
           description: "Failed to fetch workout",
+        },
+      },
+    },
+    put: {
+      tags: ["Workouts"],
+      summary: "Update an existing workout by ID",
+
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          description: "Workout UUID",
+          schema: {
+            type: "string",
+            format: "uuid",
+          },
+        },
+      ],
+
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: createWorkoutSchema,
+          },
+        },
+      },
+
+      responses: {
+        200: {
+          description: "Workout updated successfully",
+        },
+        400: {
+          description: "Validation failed, or workout type mismatch",
+        },
+        404: {
+          description: "Workout not found",
+        },
+        500: {
+          description: "Failed to update workout",
+        },
+      },
+    },
+    patch: {
+      tags: ["Workouts"],
+      summary: "Update the status of a workout by ID",
+
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          description: "Workout UUID",
+          schema: {
+            type: "string",
+            format: "uuid",
+          },
+        },
+      ],
+
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["status"],
+              properties: {
+                status: {
+                  type: "string",
+                  enum: ["planned", "completed", "skipped"],
+                  example: "completed",
+                },
+              },
+            },
+          },
+        },
+      },
+
+      responses: {
+        200: {
+          description: "Workout status updated successfully",
+        },
+        400: {
+          description: "Missing or invalid status",
+        },
+        404: {
+          description: "Workout not found",
+        },
+        500: {
+          description: "Failed to update workout status",
+        },
+      },
+    },
+    delete: {
+      tags: ["Workouts"],
+      summary: "Delete a workout by ID",
+
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          description: "Workout UUID",
+          schema: {
+            type: "string",
+            format: "uuid",
+          },
+        },
+      ],
+
+      responses: {
+        204: {
+          description: "Workout deleted successfully",
+        },
+        404: {
+          description: "Workout not found",
+        },
+        500: {
+          description: "Failed to delete workout",
         },
       },
     },
