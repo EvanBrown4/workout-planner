@@ -1,5 +1,5 @@
 import { pool } from "../db/pool.js";
-import type { CreateWorkoutInput, WorkoutWithDetails, WorkoutStatus, WorkoutType, Workout } from "./workouts.schema.js";
+import type { CreateWorkoutInput, WorkoutWithDetails, WorkoutStatus, WorkoutType, WorkoutStep, UpdateWorkoutStepsInput } from "./workouts.schema.js";
 
 export async function createWorkout(input: CreateWorkoutInput, userId: string): Promise<WorkoutWithDetails> {
   const client = await pool.connect();
@@ -310,4 +310,60 @@ export async function deleteWorkout(workoutId: string, userId: string): Promise<
   );
 
   return workoutId;
+}
+
+export async function updateWorkoutSteps(workoutId: string, userId: string, newSteps: UpdateWorkoutStepsInput["steps"]) {
+  const client = await pool.connect();
+  
+  try {
+    await client.query("BEGIN");
+    
+    const workoutResult = await client.query(
+      `
+        SELECT * FROM workouts
+        WHERE id = $1 AND user_id = $2;
+      `,
+      [workoutId, userId]
+    )
+
+    if (workoutResult.rowCount === 0) {
+      throw new Error("Workout not found or unauthorized");
+    }
+
+    await client.query(`DELETE FROM workout_steps WHERE workout_id = $1`, [workoutId]);
+
+    let steps = []
+
+    if (newSteps.length > 0) {
+      const values = newSteps.flatMap(step => [
+        workoutId,
+        step.step_order,
+        step.step_type,
+        step.end_condition,
+        step.end_condition_value,
+        step.target_type,
+        step.target_value,
+        step.notes,
+      ]);
+
+      const placeholders = newSteps.map((_, i) => {
+        const base = i * 8;
+        return `($${base + 1}, $${base + 2}, $${base + 3}, $${base + 4}, $${base + 5}, $${base + 6}, $${base + 7}, $${base + 8})`;
+      }).join(", ");
+
+      const r = await client.query(`
+        INSERT INTO workout_steps
+        (workout_id, step_order, step_type, end_condition, end_condition_value, target_type, target_value, notes)
+        VALUES ${placeholders}
+        RETURNING *
+      `, values);
+
+      steps = r.rows;
+    }
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
 }

@@ -6,6 +6,7 @@ import {
   getWorkouts,
   updateWorkout,
   updateWorkoutStatus,
+  updateWorkoutSteps,
 } from "./workouts.controller.js";
 import { requireAuth } from "../auth/auth.controller.js";
 
@@ -23,3 +24,5 @@ workoutsRouter.put("/:id", requireAuth, updateWorkout);
 workoutsRouter.patch("/:id/status", requireAuth, updateWorkoutStatus);
 
 workoutsRouter.delete("/:id", requireAuth, deleteWorkout);
+
+workoutsRouter.put("/:id/steps", requireAuth, updateWorkoutSteps)

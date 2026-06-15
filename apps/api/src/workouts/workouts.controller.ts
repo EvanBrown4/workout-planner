@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createWorkoutSchema, WorkoutStatus, WorkoutType } from "./workouts.schema.js";
+import { createWorkoutSchema, updateWorkoutStepsSchema, WorkoutStatus, WorkoutType } from "./workouts.schema.js";
 import * as workoutsService from "./workouts.service.js";
 
 const VALID_WORKOUT_TYPES = ["running", "cycling", "swimming"] as const;
@@ -213,6 +213,37 @@ export async function deleteWorkout(req: Request, res: Response) {
 
     return res.status(500).json({
       error: "Failed to delete workout",
+    });
+  }
+}
+
+export async function updateWorkoutSteps(req: Request, res: Response) {
+  try {
+    const input = updateWorkoutStepsSchema.safeParse(req.body);
+    const userId = req.session.userId;
+    let workoutId = req.params.id;
+
+    if (Array.isArray(workoutId)) {
+      workoutId = workoutId[0];
+    }
+
+    if (!input.success) {
+      return res.status(400).json({
+        error: "Validation failed",
+        details: input.error,
+      });
+    }
+
+    const steps = await workoutsService.updateWorkoutSteps(workoutId, userId, input.data.steps);
+
+    return res.status(200).json({
+      data: steps,
+    });
+  } catch (err) {
+    console.error(err);
+
+    return res.status(500).json({
+      error: "Failed to update workout steps",
     });
   }
 }

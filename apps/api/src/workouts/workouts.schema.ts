@@ -143,5 +143,10 @@ export const createWorkoutSchema = z.discriminatedUnion("workout_type", [
   }),
 ]);
 
-/* TypeScript type inferred directly from the create schema */
 export type CreateWorkoutInput = z.infer<typeof createWorkoutSchema>;
+
+export const updateWorkoutStepsSchema = z.object({
+  steps: z.array(workoutStepSchema),
+});
+
+export type UpdateWorkoutStepsInput = z.infer<typeof updateWorkoutStepsSchema>;

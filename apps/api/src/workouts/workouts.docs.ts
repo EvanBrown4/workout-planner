@@ -249,4 +249,82 @@ export const workoutsDocs = {
       },
     },
   },
+  "/v1/workouts/{id}/steps": {
+    put: {
+      tags: ["Workouts"],
+      summary: "Replace all steps for a workout",
+
+      parameters: [
+        {
+          name: "id",
+          in: "path",
+          required: true,
+          description: "Workout UUID",
+          schema: {
+            type: "string",
+            format: "uuid",
+          },
+        },
+      ],
+
+      requestBody: {
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              type: "object",
+              required: ["steps"],
+              properties: {
+                steps: {
+                  type: "array",
+                  items: {
+                    type: "object",
+                    required: ["step_order", "step_type", "end_condition"],
+                    properties: {
+                      step_order: { type: "integer", minimum: 1 },
+                      step_type: {
+                        type: "string",
+                        enum: ["warmup", "run", "recovery", "cooldown", "rest", "other"],
+                      },
+                      end_condition: {
+                        type: "string",
+                        enum: ["distance", "time", "manual"],
+                      },
+                      end_condition_value: {
+                        type: "integer",
+                        nullable: true,
+                        description: "Meters if distance, seconds if time, null if manual",
+                      },
+                      target_type: {
+                        type: "string",
+                        enum: ["pace", "hr", "hr_zone"],
+                        nullable: true,
+                      },
+                      target_value: { type: "integer", nullable: true },
+                      notes: { type: "string", nullable: true },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+
+      responses: {
+        200: {
+          description: "Workout steps replaced successfully",
+        },
+        400: {
+          description: "Validation failed",
+        },
+        404: {
+          description: "Workout not found",
+        },
+        500: {
+          description: "Failed to update workout steps",
+        },
+      },
+    },
+  },
 };
