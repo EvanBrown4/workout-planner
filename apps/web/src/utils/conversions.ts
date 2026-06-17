@@ -5,7 +5,7 @@ const METERS_PER_MILE = 1609.34398;
 // --- Time ---
 
 /** Converts mm:ss or hh:mm:ss string to total seconds */
-function timeToSeconds(time: string): number {
+export function timeToSeconds(time: string): number {
   const parts = time.split(":").map(Number);
 
   if (parts.some(isNaN)) throw new Error(`Invalid time format: "${time}"`);
@@ -16,7 +16,7 @@ function timeToSeconds(time: string): number {
 }
 
 /** Converts total seconds to mm:ss or hh:mm:ss string */
-function secondsToTime(totalSeconds: number): string {
+export function secondsToTime(totalSeconds: number): string {
   const h = Math.floor(totalSeconds / 3600);
   const m = Math.floor((totalSeconds % 3600) / 60);
   const s = totalSeconds % 60;
@@ -30,19 +30,19 @@ function secondsToTime(totalSeconds: number): string {
 // --- Distance ---
 
 /** Converts meters to km or miles */
-function metersToDistance(meters: number, distanceType: DistanceType): number {
+export function metersToDistance(meters: number, distanceType: DistanceType): number {
   return distanceType === "km" ? meters / 1000 : meters / METERS_PER_MILE;
 }
 
 /** Converts km or miles back to meters */
-function distanceToMeters(distance: number, distanceType: DistanceType): number {
+export function distanceToMeters(distance: number, distanceType: DistanceType): number {
   return distanceType === "km" ? distance * 1000 : distance * METERS_PER_MILE;
 }
 
 // --- Pace ---
 
 /** Converts sec/meter to a mm:ss/km or mm:ss/mile display string */
-function formatPace(secondsPerMeter: number, distanceType: DistanceType): string {
+export function formatPace(secondsPerMeter: number, distanceType: DistanceType): string {
   const totalSeconds = distanceType === "km"
     ? secondsPerMeter * 1000
     : secondsPerMeter * METERS_PER_MILE;
@@ -51,4 +51,11 @@ function formatPace(secondsPerMeter: number, distanceType: DistanceType): string
   const s = Math.floor(totalSeconds % 60);
 
   return `${m}:${String(s).padStart(2, "0")}`;
+}
+
+export function parsePace(pace: string): number | null {
+  const [min, sec] = pace.split(":").map(Number);
+  if (isNaN(min) || isNaN(sec)) return null;
+  // Convert min/km → sec/m
+  return Math.round((min * 60 + sec) / 1000);
 }

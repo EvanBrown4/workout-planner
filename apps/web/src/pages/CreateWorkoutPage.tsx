@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { BikeType, Stroke, WorkoutType } from "../../../api/src/workouts/workouts.schema"
 import { useNavigate } from "react-router-dom";
 import { createWorkout } from "../api/workouts";
-import { parsePace } from "../utils/pace";
+import { parsePace } from "../utils/conversions";
 import { Field } from "../components/Field";
 import { Select } from "../components/Select";
 
@@ -156,10 +156,10 @@ function RunningForm() {
 
       console.debug("[CreateWorkout] Payload", payload);
       
-      await createWorkout(payload);
+      const workout = await createWorkout(payload);
       console.debug("[CreateWorkout] Workout created successfully");
-      console.debug("[CreateWorkout] Navigating to workout_info");
-      navigate("/workout_info");
+      console.debug("[CreateWorkout] Navigating to `/workouts/${workout.data.id}`");
+      navigate(`/workouts/${workout.data.id}`);
     } catch (err) {
       console.error("[CreateWorkout] Failed to create workout", err);
       setError(err instanceof Error ? err.message : "Failed to create workout");
@@ -248,10 +248,10 @@ function CyclingForm() {
 
       console.debug("[CreateWorkout] Payload", payload);
       
-      await createWorkout(payload);
+      const workout = await createWorkout(payload);
       console.debug("[CreateWorkout] Workout created successfully");
-      console.debug("[CreateWorkout] Navigating to workout_info");
-      navigate("/workout_info");
+      console.debug("[CreateWorkout] Navigating to `/workouts/${workout.data.id}`");
+      navigate(`/workouts/${workout.data.id}`);
     } catch (err) {
       console.error("[CreateWorkout] Failed to create workout", err);
       setError(err instanceof Error ? err.message : "Failed to create workout");
@@ -350,11 +350,10 @@ function SwimmingForm() {
       } satisfies Parameters<typeof createWorkout>[0];
 
       console.debug("[CreateWorkout] Payload", payload);
-      await createWorkout(payload);
-      
+      const workout = await createWorkout(payload);
       console.debug("[CreateWorkout] Workout created successfully");
-      console.debug("[CreateWorkout] Navigating to workout_info");
-      navigate("/workout_info");
+      console.debug("[CreateWorkout] Navigating to `/workouts/${workout.data.id}`");
+      navigate(`/workouts/${workout.data.id}`);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Failed to create workout");
     } finally {

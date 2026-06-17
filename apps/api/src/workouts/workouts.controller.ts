@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import { createWorkoutSchema, updateWorkoutStepsSchema, WorkoutStatus, WorkoutType } from "./workouts.schema.js";
+import { createWorkoutSchema, updateWorkoutStepsSchema, WorkoutStatus, WorkoutType, WorkoutWithDetails } from "./workouts.schema.js";
 import * as workoutsService from "./workouts.service.js";
 
 const VALID_WORKOUT_TYPES = ["running", "cycling", "swimming"] as const;
@@ -29,6 +29,7 @@ export async function createWorkout(req: Request, res: Response) {
 
     res.status(500).json({
       error: "Failed to create workout",
+      debugMessage: err.message
     });
   }
 }

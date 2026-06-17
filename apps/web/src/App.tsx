@@ -98,7 +98,7 @@ export default function App() {
               />
 
               <Route
-                path="/workout_info"
+                path="/workouts/:id"
                 element={
                   <ProtectedRoute>
                     <WorkoutInfo />

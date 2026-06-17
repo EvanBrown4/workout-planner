@@ -154,7 +154,7 @@ export async function getWorkoutDetailsById(workoutid: string, workout_type: Wor
     case "running":
       result = await pool.query(
         `
-          SELECT id, workout_id, target_distance_meters, target_duration_seconds, target_pace_per_m
+          SELECT id, workout_id, target_distance_meters, target_duration_seconds, target_pace_sec_per_m
           FROM workout_details_running
           WHERE workout_id = $1
         `,
@@ -164,7 +164,7 @@ export async function getWorkoutDetailsById(workoutid: string, workout_type: Wor
     case "cycling":
       result = await pool.query(
         `
-          SELECT id, workout_id, target_distance_meters, target_duration_seconds, target_pace_per_m, bike_type
+          SELECT id, workout_id, target_distance_meters, target_duration_seconds, target_pace_sec_per_m, bike_type
           FROM workout_details_cycling
           WHERE workout_id = $1
         `,

@@ -20,7 +20,7 @@
 
   "include": [
     "src/**/*.ts"
-  ],
+, "../web/src/utils/conversions.ts"  ],
 
   "exclude": [
     "node_modules",

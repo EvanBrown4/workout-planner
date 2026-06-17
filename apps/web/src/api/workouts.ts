@@ -1,6 +1,7 @@
 // web/src/api/workouts.ts
 import { CreateWorkoutInput, UpdateWorkoutStepsInput } from "../../../api/src/workouts/workouts.schema";
 import { request } from "./api";
+import { WorkoutWithDetails } from "../../../api/src/workouts/workouts.schema";
 
 const API_BASE = import.meta.env.VITE_API_URL;
 
@@ -19,15 +20,15 @@ export function getWorkouts(params?: {
 
 // GET /v1/workouts/:id
 export function getWorkout(workoutId: string) {
-  return request(`/v1/workouts/${workoutId}`);
+  return request<{ data: WorkoutWithDetails }>(`/v1/workouts/${workoutId}`) as Promise<{data: WorkoutWithDetails}>;
 }
 
 // POST /v1/workouts/
-export function createWorkout(input: CreateWorkoutInput) {
-  return request("/v1/workouts/", {
+export function createWorkout(input: CreateWorkoutInput): Promise<{data: WorkoutWithDetails}> {
+  return request<{ data: WorkoutWithDetails }>("/v1/workouts/", {
     method: "POST",
     body: JSON.stringify(input),
-  });
+  }) as Promise<{data: WorkoutWithDetails}>;
 }
 
 // PUT /v1/workouts/:id
