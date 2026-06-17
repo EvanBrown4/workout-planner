@@ -1,0 +1,2 @@
+ALTER TABLE workout_details_swimming
+DROP CONSTRAINT IF EXISTS workout_details_swimming_pool_length_meters_check;

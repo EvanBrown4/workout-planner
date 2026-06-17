@@ -1,12 +1,13 @@
 import fs from "node:fs";
 import path from "node:path";
 import { Client } from "pg";
+import argon2 from "argon2";
 import "dotenv/config";
 
 type UserSeed = {
   email: string;
   username: string;
-  password_hash: string;
+  password: string;
   first_name?: string | null;
   last_name?: string | null;
 };
@@ -44,6 +45,8 @@ async function main() {
     const users = readJson<UserSeed[]>("users.json");
 
     for (const user of users) {
+      const hash = await argon2.hash(user.password);
+
       await client.query(
         `
         INSERT INTO users (
@@ -65,7 +68,7 @@ async function main() {
         [
           user.email.trim().toLowerCase(),
           user.username.trim().toLowerCase(),
-          user.password_hash,
+          hash,
           user.first_name ?? null,
           user.last_name ?? null,
         ]

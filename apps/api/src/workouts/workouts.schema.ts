@@ -49,7 +49,7 @@ export interface WorkoutDetailsSwimming {
   target_distance_meters: number | null;
   target_duration_seconds: number | null;
   target_pace_sec_per_m: number | null;
-  pool_length_meters: 25 | 50 | null;
+  pool_length_meters: number | null;
   stroke: Stroke | null;
 }
 
@@ -108,7 +108,7 @@ const workoutDetailsSwimmingSchema = z.object({
   target_distance_meters: z.number().int().positive().nullable(),
   target_duration_seconds: z.number().int().positive().nullable(),
   target_pace_sec_per_m: z.number().int().positive().nullable(),
-  pool_length_meters: z.union([z.literal(25), z.literal(50)]).nullable(),
+  pool_length_meters: z.number().nullable(),
   stroke: z.enum(["freestyle", "backstroke", "breaststroke", "butterfly", "mixed"]).nullable(),
 });
 

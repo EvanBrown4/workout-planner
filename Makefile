@@ -49,13 +49,27 @@ db-psql:
 db-migrateup:
 	@echo "📦 Running migrations..."
 	for file in db/migrations/*.sql; do \
-		echo "Running $$file"; \
-		docker exec -i $(DB_CONTAINER) psql -U workout_user -d workout_mvp < $$file; \
+		filename=$$(basename $$file); \
+		already_run=$$(docker exec $(DB_CONTAINER) psql -U workout_user -d workout_mvp -tAc \
+			"SELECT COUNT(*) FROM schema_migrations WHERE filename = '$$filename' LIMIT 1;" 2>/dev/null || echo "0"); \
+		if [ "$$already_run" = "0" ]; then \
+			echo "Running $$filename"; \
+			docker exec -i $(DB_CONTAINER) psql -U workout_user -d workout_mvp < $$file; \
+			docker exec $(DB_CONTAINER) psql -U workout_user -d workout_mvp -c \
+				"INSERT INTO schema_migrations (filename) VALUES ('$$filename');"; \
+		else \
+			echo "Skipping $$filename (already run)"; \
+		fi \
 	done
 	@echo "✅ Migrations complete"
 
 seed:
 	@echo "🌱 Seeding database..."
+	@read -r -p "Type 'RESET' to continue: " ans; \
+	if [ "$$ans" != "RESET" ]; then \
+		echo "❌ Aborted."; \
+		exit 1; \
+	fi
 	npx cross-env DATABASE_URL="$(DATABASE_URL)" npx tsx db/seeds/seed.ts
 	@echo "✅ Seed complete"
 
